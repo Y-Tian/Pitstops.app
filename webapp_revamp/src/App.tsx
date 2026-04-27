@@ -588,12 +588,10 @@ const RaceHeader: React.FC<HeaderProps> = ({
               width:        7,
               height:       7,
               borderRadius: '50%',
-              background:   loading ? '#f59e0b' : '#22c55e',
-              boxShadow:    loading
-                ? '0 0 6px #f59e0b'
-                : '0 0 6px #22c55e',
+              background:   '#22c55e',
+              boxShadow:    '0 0 6px #22c55e',
               display:      'inline-block',
-              animation:    loading ? 'pulse-dot 0.8s ease-in-out infinite' : 'none',
+              animation:    'none',
             }}
           />
           <span
@@ -602,10 +600,10 @@ const RaceHeader: React.FC<HeaderProps> = ({
               fontWeight:    700,
               fontSize:      11,
               letterSpacing: '0.14em',
-              color:         loading ? '#f59e0b' : '#22c55e',
+              color:         '#22c55e',
             }}
           >
-            {loading ? 'REFRESHING' : 'LIVE'}
+            LIVE
           </span>
         </div>
 
