@@ -1,0 +1,109 @@
+/* ── Reset ───────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+  background: #07070f;
+}
+
+body {
+  color: #f1f5f9;
+  font-family: 'Barlow Condensed', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── AG Grid — Balham Dark Theme Overrides ───────────────────────────────────── */
+.ag-theme-balham-dark {
+  /* Core colours */
+  --ag-background-color:              #07070f;
+  --ag-odd-row-background-color:      #0c0c18;
+  --ag-header-background-color:       #0a0a14;
+  --ag-foreground-color:              #e2e8f0;
+  --ag-secondary-foreground-color:    #64748b;
+  --ag-header-foreground-color:       #475569;
+
+  /* Borders */
+  --ag-border-color:                  #1a1a2e;
+  --ag-row-border-color:              #0f0f1e;
+  --ag-header-column-separator-color: #1a1a2e;
+
+  /* Interaction */
+  --ag-row-hover-color:               #111128;
+  --ag-selected-row-background-color: #1b1b30;
+
+  /* Typography */
+  --ag-font-family:  'Barlow Condensed', sans-serif;
+  --ag-font-size:    13px;
+  --ag-line-height:  normal;
+
+  /* Scrollbar */
+  --ag-scrollbar-color: #1e293b;
+
+  height: 100%;
+}
+
+/* Header labels */
+.ag-theme-balham-dark .ag-header-cell-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+/* Align helpers applied per-column via headerClass */
+.ag-col-center .ag-header-cell-label  { justify-content: center; }
+.ag-col-right  .ag-header-cell-label  { justify-content: flex-end; }
+
+/* Pinned column shadow */
+.ag-theme-balham-dark .ag-pinned-left-cols-container {
+  border-right: 1px solid #1e293b;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Tighten cell padding so Balham stays truly compact */
+.ag-theme-balham-dark .ag-cell {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* Remove focus ring (live data — no editing) */
+.ag-theme-balham-dark .ag-cell-focus,
+.ag-theme-balham-dark .ag-cell:focus {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Scrollbar styling */
+.ag-theme-balham-dark ::-webkit-scrollbar {
+  width: 6px;
+}
+.ag-theme-balham-dark ::-webkit-scrollbar-track {
+  background: #07070f;
+}
+.ag-theme-balham-dark ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
