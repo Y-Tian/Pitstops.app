@@ -107,3 +107,24 @@ body {
   background: #1e293b;
   border-radius: 3px;
 }
+
+/* Driver position background colors */
+.driver-pos-1 {
+  background-color: #3f4012 !important;
+}
+
+.driver-pos-2-5 {
+  background-color: #2e343d !important;
+}
+
+.driver-pos-6-10 {
+  background-color: #4c4c4d !important;
+}
+
+.driver-pos-11-20 {
+  background-color: #0b4b22 !important;
+}
+
+.driver-pos-21-plus {
+  background-color: #003479 !important;
+}

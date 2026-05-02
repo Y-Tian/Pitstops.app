@@ -889,6 +889,17 @@ export default function App() {
     []
   );
 
+  const rowClassRules = useMemo(
+    () => ({
+      'driver-pos-1':       (params) => params.data?.running_position === 1,
+      'driver-pos-2-5':     (params) => params.data?.running_position >= 2 && params.data?.running_position <= 5,
+      'driver-pos-6-10':    (params) => params.data?.running_position >= 6 && params.data?.running_position <= 10,
+      'driver-pos-11-20':   (params) => params.data?.running_position >= 11 && params.data?.running_position <= 20,
+      'driver-pos-21-plus': (params) => params.data?.running_position > 20,
+    }),
+    []
+  );
+
   const defaultColDef = useMemo<ColDef>(
     () => ({
       sortable:        false,
@@ -977,6 +988,7 @@ export default function App() {
           rowData={leaderboard}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          rowClassRules={rowClassRules}
           getRowId={getRowId}
           animateRows
           rowHeight={30}
