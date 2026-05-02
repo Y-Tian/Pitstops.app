@@ -80,7 +80,7 @@ const PositionDeltaRenderer: React.FC<
 > = ({ value }) => {
   if (value === 0 || value == null) {
     return (
-      <span style={{ color: '#334155', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }}>
+      <span style={{ color: '#02bbf9', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }}>
         —
       </span>
     );
@@ -114,8 +114,8 @@ const DriverCellRenderer: React.FC<
   const mfr  = MFR_CONFIG[data.vehicle_manufacturer] ?? {
     full: data.vehicle_manufacturer,
     abbr: data.vehicle_manufacturer,
-    color: '#94a3b8',
-    bg:    '#1e293b',
+    color: '#65a5ff',
+    bg:    '#02bbf9',
     border:'#94a3b830',
   };
   const { clean, ineligible, rookie } = parseDriverName(data.full_name ?? '');
@@ -172,10 +172,10 @@ const DriverCellRenderer: React.FC<
             style={{
               fontSize:      9,
               fontWeight:    700,
-              color:         '#94a3b8',
+              color:         '#65a5ff',
               fontFamily:    'Barlow Condensed, sans-serif',
               background:    '#111827',
-              border:        '1px solid #1e293b',
+              border:        '1px solid #02bbf9',
               borderRadius:  3,
               padding:       '1px 4px',
               letterSpacing: '0.04em',
@@ -226,7 +226,7 @@ const DriverCellRenderer: React.FC<
         <span
           title="Ineligible for championship points"
           style={{
-            fontSize:      8,
+            fontSize:      10,
             fontWeight:    700,
             color:         '#f97316',
             border:        '1px solid #f9731660',
@@ -237,7 +237,7 @@ const DriverCellRenderer: React.FC<
             letterSpacing: '0.06em',
           }}
         >
-          i
+          Ineligible
         </span>
       )}
 
@@ -246,7 +246,7 @@ const DriverCellRenderer: React.FC<
         <span
           title="NASCAR Next / Rookie"
           style={{
-            fontSize:      8,
+            fontSize:      10,
             fontWeight:    700,
             color:         '#a78bfa',
             border:        '1px solid #a78bfa60',
@@ -257,7 +257,7 @@ const DriverCellRenderer: React.FC<
             letterSpacing: '0.06em',
           }}
         >
-          R
+          Rookie
         </span>
       )}
     </div>
@@ -275,7 +275,7 @@ const LapTimeRenderer: React.FC<ICellRendererParams<LeaderboardRow>> = ({
         fontFamily: 'JetBrains Mono, monospace',
         fontSize:   11,
         fontWeight: 500,
-        color:      '#64748b',
+        color:      '#dde4ef',
       }}
     >
       {fmtLapTime(data.last_lap_time)}
@@ -299,10 +299,10 @@ const GapRenderer: React.FC<ICellRendererParams<LeaderboardRow>> = ({
         fontSize:   11,
         fontWeight: 500,
         color:      isLeader
-          ? '#fbbf24'
+          ? '#2cf504'
           : isLapsDown
           ? '#ef4444'
-          : '#475569',
+          : '#ff9008',
       }}
     >
       {text}
@@ -434,7 +434,7 @@ const RaceHeader: React.FC<HeaderProps> = ({
             style={{
               fontFamily:    'Barlow Condensed, sans-serif',
               fontSize:      11,
-              color:         '#334155',
+              color:         '#02bbf9',
               marginTop:     2,
               letterSpacing: '0.04em',
             }}
@@ -466,7 +466,7 @@ const RaceHeader: React.FC<HeaderProps> = ({
             >
               {metadata.lap_number}
               <span
-                style={{ fontSize: 16, color: '#334155', fontWeight: 400 }}
+                style={{ fontSize: 16, color: '#02bbf9', fontWeight: 400 }}
               >
                 /{metadata.laps_in_race}
               </span>
@@ -476,7 +476,7 @@ const RaceHeader: React.FC<HeaderProps> = ({
                 fontFamily:    'Barlow Condensed, sans-serif',
                 fontSize:      9,
                 letterSpacing: '0.16em',
-                color:         '#1e293b',
+                color:         '#02bbf9',
                 textTransform: 'uppercase',
                 marginTop:     1,
               }}
@@ -506,7 +506,7 @@ const RaceHeader: React.FC<HeaderProps> = ({
                 fontFamily:    'Barlow Condensed, sans-serif',
                 fontSize:      9,
                 letterSpacing: '0.16em',
-                color:         '#1e293b',
+                color:         '#02bbf9',
                 textTransform: 'uppercase',
                 marginTop:     1,
               }}
@@ -612,7 +612,7 @@ const RaceHeader: React.FC<HeaderProps> = ({
             style={{
               fontFamily: 'JetBrains Mono, monospace',
               fontSize:   10,
-              color:      '#1e293b',
+              color:      '#02bbf9',
               marginTop:  4,
             }}
           >
@@ -625,7 +625,7 @@ const RaceHeader: React.FC<HeaderProps> = ({
             fontFamily:    'Barlow Condensed, sans-serif',
             fontSize:      9,
             letterSpacing: '0.10em',
-            color:         '#1e293b',
+            color:         '#02bbf9',
             marginTop:     2,
           }}
         >
@@ -819,7 +819,7 @@ export default function App() {
       {
         headerName:  'POS',
         field:       'running_position',
-        width:       52,
+        width:       70,
         pinned:      'left',
         headerClass: 'ag-col-center',
         cellStyle: {
@@ -835,7 +835,7 @@ export default function App() {
       {
         headerName:  '±',
         field:       'positionDelta',
-        width:       46,
+        width:       50,
         headerClass: 'ag-col-center',
         cellRenderer: PositionDeltaRenderer,
         cellStyle: {
@@ -850,7 +850,9 @@ export default function App() {
         flex:         1,
         minWidth:     215,
         cellRenderer: DriverCellRenderer,
-        cellStyle:    { padding: '0 4px' },
+        cellStyle:    { 
+          padding: '0 4px' 
+        },
       },
       {
         headerName:   'LAST LAP',
@@ -985,19 +987,16 @@ export default function App() {
           getRowId={getRowId}
           animateRows
           rowHeight={30}
-          headerHeight={34}
+          headerHeight={50}
           context={gridContext}
-          suppressCellFocus
-          suppressRowHoverHighlight={false}
-          rowSelection="single"
           suppressScrollOnNewData
           noRowsOverlayComponent={() => (
             <span
               style={{
                 fontFamily:    'Barlow Condensed, sans-serif',
-                fontSize:      13,
+                fontSize:      14,
                 letterSpacing: '0.1em',
-                color:         '#1e293b',
+                color:         '#276cdb',
               }}
             >
               {notConfigured

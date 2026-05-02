@@ -14,7 +14,7 @@ export const carBadgeUrl = (seriesId: number, vehicleNumber: string): string =>
 // ─── Series Names ──────────────────────────────────────────────────────────────
 export const SERIES_NAMES: Record<number, string> = {
   1: 'NASCAR Cup Series',
-  2: 'NASCAR Xfinity Series',
+  2: 'NASCAR O\'Reilly Auto Parts Series',
   3: 'NASCAR Craftsman Truck Series',
 };
 
