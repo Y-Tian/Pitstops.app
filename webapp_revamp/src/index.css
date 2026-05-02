@@ -49,7 +49,7 @@ body {
   --ag-header-column-separator-color: #1a1a2e;
 
   /* Interaction */
-  --ag-row-hover-color:               #111128;
+  --ag-row-hover-color:               transparent;
   --ag-selected-row-background-color: #1b1b30;
 
   /* Typography */

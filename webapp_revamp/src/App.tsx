@@ -995,6 +995,7 @@ export default function App() {
           headerHeight={50}
           context={gridContext}
           suppressScrollOnNewData
+          suppressRowHoverHighlight={true}
           noRowsOverlayComponent={() => (
             <span
               style={{
