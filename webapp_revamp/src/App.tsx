@@ -187,23 +187,16 @@ const DriverCellRenderer: React.FC<
       </div>
 
       {/* ── Manufacturer Pill ── */}
-      <span
-        style={{
-          fontSize:      9,
-          fontWeight:    700,
-          fontFamily:    'Barlow Condensed, sans-serif',
-          color:         mfr.color,
-          background:    mfr.bg,
-          border:        `1px solid ${mfr.border}`,
-          borderRadius:  2,
-          padding:       '1px 4px',
-          letterSpacing: '0.06em',
-          flexShrink:    0,
-        }}
+      <img
+        src={mfr.logo}
+        alt={mfr.full}
         title={mfr.full}
-      >
-        {mfr.abbr}
-      </span>
+        style={{
+          height:     10,
+          flexShrink: 0,
+          objectFit:  'contain',
+        }}
+      />
 
       {/* ── Driver Name ── */}
       <span

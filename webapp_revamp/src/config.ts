@@ -32,14 +32,20 @@ export const FLAG_CONFIG: Record<
   9: { label: 'CAUTION',      color: '#eab308', glow: '#eab30844' },
 };
 
+// ─── Manufacturer Images ────────────────────────────────────────────────────────
+import chevroletLogo from './resources/chevrolet.png';
+import fordLogo from './resources/ford.png';
+import toyotaLogo from './resources/toyota.png';
+
 // ─── Manufacturer Config ───────────────────────────────────────────────────────
 export const MFR_CONFIG: Record<
   string,
-  { full: string; abbr: string; color: string; bg: string; border: string }
+  { full: string; abbr: string; logo: string; color: string; bg: string; border: string }
 > = {
   Chv: {
     full: 'Chevrolet',
     abbr: 'CHV',
+    logo: chevroletLogo,
     color: '#fbbf24',
     bg: '#271d00',
     border: '#fbbf2440',
@@ -47,6 +53,7 @@ export const MFR_CONFIG: Record<
   Frd: {
     full: 'Ford',
     abbr: 'FRD',
+    logo: fordLogo,
     color: '#60a5fa',
     bg: '#061629',
     border: '#60a5fa40',
@@ -54,6 +61,7 @@ export const MFR_CONFIG: Record<
   Tyt: {
     full: 'Toyota',
     abbr: 'TYT',
+    logo: toyotaLogo,
     color: '#f87171',
     bg: '#210808',
     border: '#f8717140',
