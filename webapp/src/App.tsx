@@ -968,6 +968,22 @@ export default function App() {
         },
       },
       {
+        headerName:  'START',
+        field:       'starting_position',
+        width:       78,
+        pinned:      'left',
+        headerClass: 'ag-col-center',
+        cellStyle: {
+          display:        'flex',
+          alignItems:     'center',
+          justifyContent: 'center',
+          fontFamily:     'JetBrains Mono, monospace',
+          fontWeight:     700,
+          fontSize:       10,
+          color:          '#71767a',
+        },
+      },
+      {
         headerName:  '±',
         field:       'positionDelta',
         width:       50,
