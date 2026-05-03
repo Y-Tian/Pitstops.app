@@ -195,6 +195,7 @@ const DriverCellRenderer: React.FC<
         title={mfr.full}
         style={{
           height:     10,
+          width:      25,
           flexShrink: 0,
           objectFit:  'contain',
         }}
