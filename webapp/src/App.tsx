@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type {
+  CellStyle,
   ColDef,
   GetRowIdParams,
   ICellRendererParams,
@@ -821,6 +822,23 @@ export default function App() {
     []
   );
 
+  const rightAlignedCellStyle: CellStyle = {
+    display:        'flex',
+    alignItems:     'center',
+    justifyContent: 'flex-end',
+    paddingRight:   10,
+  };
+
+  const centeredCellStyle: CellStyle = {
+    display:        'flex',
+    alignItems:     'center',
+    justifyContent: 'center',
+  };
+
+  const driverCellStyle: CellStyle = {
+    padding: '0 4px',
+  };
+
   const columnDefs = useMemo<ColDef<LeaderboardRow>[]>(
     () => [
       {
@@ -834,9 +852,6 @@ export default function App() {
           fontWeight:     700,
           fontSize:       13,
           color:          '#f1f5f9',
-          display:        'flex',
-          alignItems:     'center',
-          justifyContent: 'center',
         },
       },
       {
@@ -845,11 +860,7 @@ export default function App() {
         width:       50,
         headerClass: 'ag-col-center',
         cellRenderer: PositionDeltaRenderer,
-        cellStyle: {
-          display:        'flex',
-          alignItems:     'center',
-          justifyContent: 'center',
-        },
+        cellStyle:    centeredCellStyle,
       },
       {
         headerName:   'DRIVER',
@@ -857,9 +868,7 @@ export default function App() {
         flex:         1,
         minWidth:     215,
         cellRenderer: DriverCellRenderer,
-        cellStyle:    { 
-          padding: '0 4px' 
-        },
+        cellStyle:    driverCellStyle,
       },
       {
         headerName:   'LAST LAP',
@@ -867,12 +876,7 @@ export default function App() {
         width:        90,
         headerClass:  'ag-col-right',
         cellRenderer: LapTimeRenderer,
-        cellStyle: {
-          display:        'flex',
-          alignItems:     'center',
-          justifyContent: 'flex-end',
-          paddingRight:   10,
-        },
+        cellStyle:    rightAlignedCellStyle,
       },
       {
         headerName:   'GAP',
@@ -880,12 +884,7 @@ export default function App() {
         width:        104,
         headerClass:  'ag-col-right',
         cellRenderer: GapRenderer,
-        cellStyle: {
-          display:        'flex',
-          alignItems:     'center',
-          justifyContent: 'flex-end',
-          paddingRight:   10,
-        },
+        cellStyle:    rightAlignedCellStyle,
       },
       {
         headerName:   'STATUS',
@@ -893,11 +892,7 @@ export default function App() {
         width:        96,
         headerClass:  'ag-col-center',
         cellRenderer: StatusRenderer,
-        cellStyle: {
-          display:        'flex',
-          alignItems:     'center',
-          justifyContent: 'center',
-        },
+        cellStyle:    centeredCellStyle,
       },
     ],
     []
