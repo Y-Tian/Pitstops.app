@@ -3,6 +3,7 @@
 export interface LeaderboardRow extends Record<string, unknown> {
   last_lap_time: number;
   pace_grade?: string;
+  pace_rank?: number;
   vehicle_manufacturer: string; // 'Chv' | 'Frd' | 'Tyt'
   vehicle_number: string;
   driver_id: number;

@@ -847,7 +847,7 @@ export default function App() {
       );
       let parsedA = parseCSV<LeaderboardRow>(rawRowsText);
       let parsedB = parseCSV<RaceMetadata>(rawMetaText);
-      const parsedAnalytics = parseCSV<{ driver_id: number; pace_grade: string }>(rawAnalyticsText);
+      const parsedAnalytics = parseCSV<{ driver_id: number; pace_grade: string; pace_rank: number }>(rawAnalyticsText);
 
       // Heuristic detection: CSVs may be swapped. Detect by presence of known keys.
       const aLooksLikeMeta = parsedA[0] && Object.prototype.hasOwnProperty.call(parsedA[0], 'lap_number');
@@ -863,9 +863,11 @@ export default function App() {
       const rawRowsFinal = parsedA as LeaderboardRow[];
       const rawMetaFinal = parsedB as RaceMetadata[];
       const paceGradeByDriverId = new Map<number, string>();
+      const paceRankByDriverId = new Map<number, number>();
       parsedAnalytics.forEach((row) => {
         if (row.driver_id != null) {
           paceGradeByDriverId.set(row.driver_id, row.pace_grade ?? '');
+          paceRankByDriverId.set(row.driver_id, row.pace_rank ?? Number.POSITIVE_INFINITY);
         }
       });
 
@@ -879,6 +881,7 @@ export default function App() {
       const rows: LeaderboardRow[] = rawRowsFinal.map((row) => ({
         ...row,
         pace_grade: paceGradeByDriverId.get(row.driver_id) ?? '',
+        pace_rank: paceRankByDriverId.get(row.driver_id),
         positionDelta: firstLoad.current
           ? 0
           : (prev.get(row.driver_id) ?? row.running_position) -
@@ -987,6 +990,9 @@ export default function App() {
         field:        'pace_grade',
         width:        96,
         headerClass:  'ag-col-center',
+        comparator:   (valueA, valueB, nodeA, nodeB) =>
+          (nodeA.data?.pace_rank ?? Number.POSITIVE_INFINITY) -
+          (nodeB.data?.pace_rank ?? Number.POSITIVE_INFINITY),
         cellRenderer: PaceGradeRenderer,
         cellStyle:    centeredCellStyle,
       },
