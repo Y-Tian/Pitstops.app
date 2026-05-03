@@ -1,6 +1,6 @@
 // ─── Data shapes from R2 CSVs ──────────────────────────────────────────────────
 
-export interface LeaderboardRow {
+export interface LeaderboardRow extends Record<string, unknown> {
   last_lap_time: number;
   vehicle_manufacturer: string; // 'Chv' | 'Frd' | 'Tyt'
   vehicle_number: string;
@@ -15,7 +15,7 @@ export interface LeaderboardRow {
   positionDelta: number; // positive = gained positions, negative = lost
 }
 
-export interface RaceMetadata {
+export interface RaceMetadata extends Record<string, unknown> {
   lap_number: number;
   flag_state: number;
   laps_in_race: number;
