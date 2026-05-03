@@ -318,6 +318,51 @@ const GapRenderer: React.FC<ICellRendererParams<LeaderboardRow>> = ({
   );
 };
 
+// ── Race Pace Grade ───────────────────────────────────────────────────────────
+const PaceGradeRenderer: React.FC<ICellRendererParams<LeaderboardRow>> = ({
+  value,
+}) => {
+  const grade = typeof value === 'string' && value.trim() ? value.trim() : '—';
+
+  const palette: Record<string, { color: string; border: string; bg: string }> = {
+    'S+': { color: '#f8fafc', border: '#f8fafc55', bg: '#1f2937' },
+    S:    { color: '#22c55e', border: '#22c55e55', bg: '#052e16' },
+    A:    { color: '#02bbf9', border: '#02bbf955', bg: '#082f49' },
+    B:    { color: '#fbbf24', border: '#fbbf2455', bg: '#3b2502' },
+    C:    { color: '#fb923c', border: '#fb923c55', bg: '#431407' },
+    D:    { color: '#ef4444', border: '#ef444455', bg: '#450a0a' },
+    F:    { color: '#ef4444', border: '#ef444455', bg: '#450a0a' },
+  };
+
+  const style = palette[grade] ?? {
+    color: '#dde4ef',
+    border: '#334155',
+    bg: '#111827',
+  };
+
+  return (
+    <span
+      style={{
+        display:        'inline-flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+        minWidth:       34,
+        padding:        '2px 8px',
+        borderRadius:   999,
+        border:         `1px solid ${style.border}`,
+        background:     style.bg,
+        color:          style.color,
+        fontFamily:     'JetBrains Mono, monospace',
+        fontSize:       11,
+        fontWeight:     700,
+        letterSpacing:  '0.04em',
+      }}
+    >
+      {grade}
+    </span>
+  );
+};
+
 // ── Car Status ────────────────────────────────────────────────────────────────
 const StatusRenderer: React.FC<ICellRendererParams<LeaderboardRow>> = ({
   data,
@@ -763,7 +808,7 @@ export default function App() {
 
   // ── Data loader (stable ref, no deps) ────────────────────────────────────────
   const loadData = useCallback(async () => {
-    if (!R2_URLS.leaderboard || !R2_URLS.metadata) {
+    if (!R2_URLS.leaderboard || !R2_URLS.metadata || !R2_URLS.analytics) {
       setError('R2 URLs not configured — see .env.example');
       return;
     }
@@ -772,17 +817,38 @@ export default function App() {
 
     try {
       // Debuggable fetch: get raw responses so we can log statuses and sizes
-      const [leaderboardResp, metadataResp] = await Promise.all([
+      const [leaderboardResp, metadataResp, analyticsResp] = await Promise.all([
         fetch(R2_URLS.leaderboard, { cache: 'no-store' }),
         fetch(R2_URLS.metadata, { cache: 'no-store' }),
+        fetch(R2_URLS.analytics, { cache: 'no-store' }),
       ]);
-      console.debug('R2 leaderboard status:', leaderboardResp.status, 'metadata status:', metadataResp.status);
+      console.debug(
+        'R2 leaderboard status:',
+        leaderboardResp.status,
+        'metadata status:',
+        metadataResp.status,
+        'analytics status:',
+        analyticsResp.status
+      );
       if (!leaderboardResp.ok) throw new Error(`HTTP ${leaderboardResp.status} — ${R2_URLS.leaderboard}`);
       if (!metadataResp.ok) throw new Error(`HTTP ${metadataResp.status} — ${R2_URLS.metadata}`);
-      const [rawRowsText, rawMetaText] = await Promise.all([leaderboardResp.text(), metadataResp.text()]);
-      console.debug('R2 leaderboard bytes:', rawRowsText.length, 'metadata bytes:', rawMetaText.length);
+      if (!analyticsResp.ok) throw new Error(`HTTP ${analyticsResp.status} — ${R2_URLS.analytics}`);
+      const [rawRowsText, rawMetaText, rawAnalyticsText] = await Promise.all([
+        leaderboardResp.text(),
+        metadataResp.text(),
+        analyticsResp.text(),
+      ]);
+      console.debug(
+        'R2 leaderboard bytes:',
+        rawRowsText.length,
+        'metadata bytes:',
+        rawMetaText.length,
+        'analytics bytes:',
+        rawAnalyticsText.length
+      );
       let parsedA = parseCSV<LeaderboardRow>(rawRowsText);
       let parsedB = parseCSV<RaceMetadata>(rawMetaText);
+      const parsedAnalytics = parseCSV<{ driver_id: number; pace_grade: string }>(rawAnalyticsText);
 
       // Heuristic detection: CSVs may be swapped. Detect by presence of known keys.
       const aLooksLikeMeta = parsedA[0] && Object.prototype.hasOwnProperty.call(parsedA[0], 'lap_number');
@@ -797,15 +863,23 @@ export default function App() {
 
       const rawRowsFinal = parsedA as LeaderboardRow[];
       const rawMetaFinal = parsedB as RaceMetadata[];
+      const paceGradeByDriverId = new Map<number, string>();
+      parsedAnalytics.forEach((row) => {
+        if (row.driver_id != null) {
+          paceGradeByDriverId.set(row.driver_id, row.pace_grade ?? '');
+        }
+      });
 
       console.debug('Parsed leaderboard rows:', rawRowsFinal.length, rawRowsFinal[0]);
       console.debug('Parsed metadata rows:', rawMetaFinal.length, rawMetaFinal[0]);
+      console.debug('Parsed analytics rows:', parsedAnalytics.length, parsedAnalytics[0]);
 
       const prev = prevPositions.current;
 
       // Compute position-change deltas (previous pos − current pos)
       const rows: LeaderboardRow[] = rawRowsFinal.map((row) => ({
         ...row,
+        pace_grade: paceGradeByDriverId.get(row.driver_id) ?? '',
         positionDelta: firstLoad.current
           ? 0
           : (prev.get(row.driver_id) ?? row.running_position) -
@@ -904,6 +978,14 @@ export default function App() {
         cellStyle:    driverCellStyle,
       },
       {
+        headerName:   'RACE PACE',
+        field:        'pace_grade',
+        width:        96,
+        headerClass:  'ag-col-center',
+        cellRenderer: PaceGradeRenderer,
+        cellStyle:    centeredCellStyle,
+      },
+      {
         headerName:   'LAST LAP',
         field:        'last_lap_time',
         width:        90,
@@ -953,7 +1035,7 @@ export default function App() {
   );
 
   // ── Render ─────────────────────────────────────────────────────────────────────
-  const notConfigured = !R2_URLS.leaderboard || !R2_URLS.metadata;
+  const notConfigured = !R2_URLS.leaderboard || !R2_URLS.metadata || !R2_URLS.analytics;
 
   return (
     <div
@@ -1013,6 +1095,14 @@ export default function App() {
             <br />
             <code style={{ color: '#d97706' }}>
               VITE_METADATA_URL=https://…/race_metadata.csv
+            </code>
+            <br />
+            <code style={{ color: '#d97706' }}>
+              VITE_ANALYTICS_URL=https://…/analytics.csv
+            </code>
+            <br />
+            <code style={{ color: '#d97706' }}>
+              VITE_REFRESH_INTERVAL_MS=5000
             </code>
           </p>
         </div>

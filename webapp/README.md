@@ -19,6 +19,7 @@ Edit `.env` and fill in your Cloudflare R2 public URLs:
 ```env
 VITE_LEADERBOARD_URL=https://your-bucket.your-account.r2.cloudflarestorage.com/leaderboard.csv
 VITE_METADATA_URL=https://your-bucket.your-account.r2.cloudflarestorage.com/race_metadata.csv
+VITE_ANALYTICS_URL=https://your-bucket.your-account.r2.cloudflarestorage.com/analytics.csv
 VITE_REFRESH_INTERVAL_MS=5000
 ```
 
@@ -68,15 +69,22 @@ npm run preview
 | `track_id` | int | |
 | `track_name` | string | |
 
+### `analytics.csv`
+| Column | Type | Notes |
+|---|---|---|
+| `driver_id` | int | Matches `leaderboard.csv` |
+| `pace_grade` | string | Race pace grade shown in the leaderboard |
+
 ---
 
 ## Features
-- **Live polling** — fetches both CSVs every `VITE_REFRESH_INTERVAL_MS` ms with `cache: no-store`
+- **Live polling** — fetches all three CSVs every `VITE_REFRESH_INTERVAL_MS` ms with `cache: no-store`
 - **Position delta** — tracks each driver's position change between refreshes (▲ green / ▼ red)
 - **Animated row reordering** — AG Grid's `animateRows` smoothly moves rows as positions change
 - **Car badge images** — prefetched once on load from `cf.nascar.com/data/images/carbadges/`
 - **Manufacturer pills** — color-coded CHV (gold) / FRD (blue) / TYT (red)
 - **Driver decorators** — `i` badge for ineligible drivers, `R` for rookies
 - **Gap formatting** — seconds for on-lead-lap cars, `–N Laps` for lapped cars
+- **Race pace** — joins `analytics.csv` onto the leaderboard by `driver_id` and shows `pace_grade`
 - **Flag indicator** — animated dot + colour-coded label for all flag states
 - **Dark racing theme** — Barlow Condensed + JetBrains Mono + AG Grid Balham Dark
