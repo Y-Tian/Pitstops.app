@@ -1,68 +1,246 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* ── Reset ───────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+  background: #07070f;
+}
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+body {
+  color: #f1f5f9;
+  font-family: 'Barlow Condensed', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* ── Animations ──────────────────────────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+/* ── AG Grid — Balham Dark Theme Overrides ───────────────────────────────────── */
+.ag-theme-balham-dark {
+  /* Core colours */
+  --ag-background-color:              #07070f;
+  --ag-odd-row-background-color:      #0c0c18;
+  --ag-header-background-color:       #0a0a14;
+  --ag-foreground-color:              #e2e8f0;
+  --ag-secondary-foreground-color:    #64748b;
+  --ag-header-foreground-color:       #475569;
+
+  /* Borders */
+  --ag-border-color:                  #1a1a2e;
+  --ag-row-border-color:              #0f0f1e;
+  --ag-header-column-separator-color: #1a1a2e;
+
+  /* Interaction */
+  --ag-row-hover-color:               transparent;
+  --ag-selected-row-background-color: #1b1b30;
+
+  /* Typography */
+  --ag-font-family:  'Barlow Condensed', sans-serif;
+  --ag-font-size:    13px;
+  --ag-line-height:  normal;
+
+  /* Scrollbar */
+  --ag-scrollbar-color: #1e293b;
+
+  height: 100%;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Header labels */
+.ag-theme-balham-dark .ag-header-cell-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #3c8bfa;
+}
+
+/* Align helpers applied per-column via headerClass */
+.ag-col-center .ag-header-cell-label  { justify-content: center; }
+.ag-col-right  .ag-header-cell-label  { justify-content: flex-end; }
+
+/* Pinned column shadow */
+.ag-theme-balham-dark .ag-pinned-left-cols-container {
+  border-right: 1px solid #1e293b;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Tighten cell padding so Balham stays truly compact */
+.ag-theme-balham-dark .ag-cell {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* Remove focus ring (live data — no editing) */
+.ag-theme-balham-dark .ag-cell-focus,
+.ag-theme-balham-dark .ag-cell:focus {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Scrollbar styling */
+.ag-theme-balham-dark ::-webkit-scrollbar {
+  width: 6px;
+}
+.ag-theme-balham-dark ::-webkit-scrollbar-track {
+  background: #07070f;
+}
+.ag-theme-balham-dark ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+/* Driver position background colors */
+.driver-pos-1 {
+  background-color: #3f4012 !important;
+}
+
+.driver-pos-2-5 {
+  background-color: #2e343d !important;
+}
+
+.driver-pos-6-10 {
+  background-color: #4c4c4d !important;
+}
+
+.driver-pos-11-20 {
+  background-color: #0b4b22 !important;
+}
+
+.driver-pos-21-plus {
+  background-color: #003479 !important;
+}
+
+/* Favorite driver outline */
+.driver-favorite {
+  border: 2px solid #ef4444 !important;
+  box-shadow: inset 0 0 0 1px #ef4444 !important;
+}
+
+/* React-Select customization */
+.driver-select__control {
+  background-color: #0c0c18 !important;
+  border-color: #1a1a2e !important;
+  color: #e2e8f0 !important;
+  border-radius: 6px !important;
+  min-height: 40px !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+  font-size: 13px !important;
+}
+
+.driver-select__control:hover {
+  border-color: #3c8bfa !important;
+}
+
+.driver-select__control--is-focused {
+  border-color: #3c8bfa !important;
+  box-shadow: 0 0 0 1px #3c8bfa !important;
+}
+
+.driver-select__input {
+  color: #e2e8f0 !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+}
+
+.driver-select__placeholder {
+  color: #64748b !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+}
+
+.driver-select__multi-value {
+  background-color: #1a1a2e !important;
+  color: #e2e8f0 !important;
+}
+
+.driver-select__multi-value__label {
+  color: #e2e8f0 !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+  font-size: 12px !important;
+}
+
+.driver-select__multi-value__remove {
+  color: #64748b !important;
+  cursor: pointer !important;
+}
+
+.driver-select__multi-value__remove:hover {
+  background-color: #ef4444 !important;
+  color: #fff !important;
+}
+
+.driver-select__menu {
+  background-color: #07070f !important;
+  border-color: #1a1a2e !important;
+  z-index: 1000 !important;
+}
+
+.driver-select__menu-list {
+  background-color: #07070f !important;
+  scrollbar-color: #1e293b #07070f;
+}
+
+.driver-select__option {
+  background-color: #07070f !important;
+  color: #e2e8f0 !important;
+  cursor: pointer !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+  font-size: 13px !important;
+  padding: 10px 12px !important;
+}
+
+.driver-select__option:hover {
+  background-color: #1a1a2e !important;
+}
+
+.driver-select__option--is-focused {
+  background-color: #1a1a2e !important;
+}
+
+.driver-select__option--is-selected {
+  background-color: #3c8bfa !important;
+  color: #fff !important;
+}
+
+.driver-select__option--is-selected:hover {
+  background-color: #276cdb !important;
+}
+
+.driver-select__no-options {
+  color: #64748b !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+}
+
+.driver-select__dropdown-indicator {
+  color: #3c8bfa !important;
+}
+
+.driver-select__dropdown-indicator:hover {
+  color: #276cdb !important;
+}
+
+.driver-select__clear-indicator {
+  color: #64748b !important;
+  cursor: pointer !important;
+}
+
+.driver-select__clear-indicator:hover {
+  color: #ef4444 !important;
 }
