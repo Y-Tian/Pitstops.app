@@ -954,6 +954,9 @@ export default function App() {
         pinned:      'left',
         headerClass: 'ag-col-center',
         cellStyle: {
+          display:        'flex',
+          alignItems:     'center',
+          justifyContent: 'center',
           fontFamily:     'JetBrains Mono, monospace',
           fontWeight:     700,
           fontSize:       13,
@@ -996,9 +999,9 @@ export default function App() {
         headerName:   'GAP',
         field:        'delta',
         width:        104,
-        headerClass:  'ag-col-right',
+        headerClass:  'ag-col-center',
         cellRenderer: GapRenderer,
-        cellStyle:    rightAlignedCellStyle,
+        cellStyle:    centeredCellStyle,
       },
       {
         headerName:   'STATUS',
