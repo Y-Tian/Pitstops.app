@@ -952,6 +952,7 @@ export default function App() {
         field:       'running_position',
         width:       70,
         pinned:      'left',
+        sort:        'asc',
         headerClass: 'ag-col-center',
         cellStyle: {
           display:        'flex',
@@ -967,6 +968,7 @@ export default function App() {
         headerName:  '±',
         field:       'positionDelta',
         width:       50,
+        sortable:     false,
         headerClass: 'ag-col-center',
         cellRenderer: PositionDeltaRenderer,
         cellStyle:    centeredCellStyle,
@@ -976,6 +978,7 @@ export default function App() {
         field:        'full_name',
         flex:         1,
         minWidth:     215,
+        sortable:     false,
         cellRenderer: DriverCellRenderer,
         cellStyle:    driverCellStyle,
       },
@@ -1000,6 +1003,7 @@ export default function App() {
         field:        'delta',
         width:        104,
         headerClass:  'ag-col-center',
+        sortable:     false,
         cellRenderer: GapRenderer,
         cellStyle:    centeredCellStyle,
       },
@@ -1029,7 +1033,7 @@ export default function App() {
 
   const defaultColDef = useMemo<ColDef>(
     () => ({
-      sortable:        false,
+      sortable:        true,
       resizable:       false,
       suppressMovable: true,
     }),
