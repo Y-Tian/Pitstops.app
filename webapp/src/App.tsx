@@ -847,6 +847,7 @@ export default function App() {
   const firstLoad      = useRef(true);
   const badgesFetched  = useRef(false);
   const driverImagesFetched = useRef(false);
+  const teamByNascarDriverId = useRef<Map<number, string>>(new Map());
   const intervalRef    = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Grid context — memoized to avoid unnecessary re-renders
@@ -904,7 +905,7 @@ export default function App() {
       let parsedB = parseCSV<RaceMetadata>(rawMetaText);
       const parsedAnalytics = parseCSV<{ driver_id: number; pace_grade: string; pace_rank: number }>(rawAnalyticsText);
       const parsedDrivers = rawDriversText
-        ? parseCSV<{ nascar_driver_id: number; image_small: string }>(rawDriversText)
+        ? parseCSV<{ nascar_driver_id: number; image_small: string; team: string }>(rawDriversText)
         : [];
 
       // Heuristic detection: CSVs may be swapped. Detect by presence of known keys.
@@ -933,6 +934,9 @@ export default function App() {
         if (row.nascar_driver_id != null && typeof row.image_small === 'string' && row.image_small.trim()) {
           imageUrlByNascarDriverId.set(row.nascar_driver_id, row.image_small.trim());
         }
+        if (row.nascar_driver_id != null && typeof row.team === 'string' && row.team.trim()) {
+          teamByNascarDriverId.current.set(row.nascar_driver_id, row.team.trim());
+        }
       });
 
       console.debug('Parsed leaderboard rows:', rawRowsFinal.length, rawRowsFinal[0]);
@@ -945,6 +949,7 @@ export default function App() {
       // Compute position-change deltas (previous pos − current pos)
       const rows: LeaderboardRow[] = rawRowsFinal.map((row) => ({
         ...row,
+        team: teamByNascarDriverId.current.get(row.driver_id) ?? '',
         pace_grade: paceGradeByDriverId.get(row.driver_id) ?? '',
         pace_rank: paceRankByDriverId.get(row.driver_id),
         positionDelta: firstLoad.current
@@ -1063,6 +1068,12 @@ export default function App() {
         headerClass: 'ag-col-center',
         cellRenderer: PositionDeltaRenderer,
         cellStyle:    centeredCellStyle,
+      },
+      {
+        headerName:  'TEAM',
+        field:       'team',
+        width:       120,
+        sortable:    true,
       },
       {
         headerName:   'DRIVER',
