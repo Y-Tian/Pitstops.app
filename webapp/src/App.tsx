@@ -496,6 +496,38 @@ const RaceHeader: React.FC<HeaderProps> = ({
           {/* Divider */}
           <div style={{ width: 1, height: 40, background: '#1a1a2e' }} />
 
+          {/* Progress bar */}
+          <div
+            style={{
+              display:       'flex',
+              alignItems:    'center',
+              justifyContent: 'center',
+              width:         80,
+              height:        40,
+            }}
+          >
+            <div
+              style={{
+                width:            '100%',
+                height:           6,
+                background:       '#1a1a2e',
+                borderRadius:     3,
+                overflow:         'hidden',
+                position:         'relative',
+              }}
+            >
+              <div
+                style={{
+                  width:       `${(metadata.lap_number / metadata.laps_in_race) * 100}%`,
+                  height:      '100%',
+                  background:  '#02bbf9',
+                  borderRadius: 3,
+                  transition:  'width 0.3s ease',
+                }}
+              />
+            </div>
+          </div>
+
           {/* Laps remaining */}
           <div style={{ textAlign: 'center' }}>
             <div
