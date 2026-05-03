@@ -209,13 +209,13 @@ const DriverCellRenderer: React.FC<
           fontWeight:   500,
           fontSize:     13,
           color:        '#dde4ef',
-          overflow:     'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace:   'nowrap',
-          flex:         1,
           textDecoration: 'none',
           cursor:       'pointer',
           transition:   'color 0.2s ease',
+          minWidth:     0,
+          overflow:     'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace:   'nowrap',
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLAnchorElement).style.color = '#02bbf9';
