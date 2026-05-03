@@ -26,6 +26,7 @@ import {
   SERIES_NAMES,
 } from './config';
 import { FavoriteDriversSelect } from './FavoriteDriversSelect';
+import { FavoriteTeamsSelect } from './FavoriteTeamsSelect';
 import './index.css';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -841,6 +842,7 @@ export default function App() {
   const [badgeImages, setBadgeImages] = useState<Map<string, string>>(new Map());
   const [driverImages, setDriverImages] = useState<Map<number, string>>(new Map());
   const [favoriteDriverIds, setFavoriteDriverIds] = useState<number[]>([]);
+  const [favoriteTeamNames, setFavoriteTeamNames] = useState<string[]>([]);
 
   // Stable refs — avoid re-creating the interval callback
   const prevPositions  = useRef<Map<number, number>>(new Map());
@@ -855,6 +857,16 @@ export default function App() {
     () => ({ badgeImages, driverImages, seriesId: metadata?.series_id ?? 1 }),
     [badgeImages, driverImages, metadata?.series_id]
   );
+
+  const availableTeams = useMemo(() => {
+    return Array.from(
+      new Set(
+        leaderboard
+          .map((row) => row.team?.trim())
+          .filter((team): team is string => Boolean(team))
+      )
+    ).sort((a, b) => a.localeCompare(b));
+  }, [leaderboard]);
 
   // ── Data loader (stable ref, no deps) ────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -1074,6 +1086,10 @@ export default function App() {
         field:       'team',
         width:       120,
         sortable:    true,
+        cellClassRules: {
+          'team-favorite': (params: any) =>
+            favoriteTeamNames.includes(String(params.value ?? '').trim()),
+        },
       },
       {
         headerName:   'DRIVER',
@@ -1121,7 +1137,7 @@ export default function App() {
         cellStyle:    centeredCellStyle,
       },
     ],
-    []
+    [favoriteTeamNames]
   );
 
   const rowClassRules = useMemo(
@@ -1223,20 +1239,33 @@ export default function App() {
         </div>
       )}
 
-      {/* ── Favorite Drivers Select ── */}
+      {/* ── Favorite Selects ── */}
       {leaderboard.length > 0 && (
         <div
           style={{
-            padding: '12px 16px',
-            borderBottom: '1px solid #1a1a2e',
-            background: '#0a0a14',
+            padding:        '12px 16px',
+            borderBottom:   '1px solid #1a1a2e',
+            background:     '#0a0a14',
+            display:        'flex',
+            gap:            12,
+            alignItems:     'flex-start',
+            flexWrap:       'wrap',
           }}
         >
-          <FavoriteDriversSelect
-            drivers={leaderboard}
-            selectedDriverIds={favoriteDriverIds}
-            onSelectionChange={setFavoriteDriverIds}
-          />
+          <div style={{ flex: '1 1 320px', minWidth: 0 }}>
+            <FavoriteDriversSelect
+              drivers={leaderboard}
+              selectedDriverIds={favoriteDriverIds}
+              onSelectionChange={setFavoriteDriverIds}
+            />
+          </div>
+          <div style={{ flex: '1 1 320px', minWidth: 0 }}>
+            <FavoriteTeamsSelect
+              teams={availableTeams}
+              selectedTeamNames={favoriteTeamNames}
+              onSelectionChange={setFavoriteTeamNames}
+            />
+          </div>
         </div>
       )}
 
