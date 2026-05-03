@@ -5,7 +5,7 @@ export const R2_URLS = {
 };
 
 export const REFRESH_INTERVAL_MS =
-  Number(import.meta.env.VITE_REFRESH_INTERVAL_MS) || 5000;
+  Number(import.meta.env.VITE_REFRESH_INTERVAL_MS) || 15000;
 
 // ─── NASCAR CDN ────────────────────────────────────────────────────────────────
 export const carBadgeUrl = (seriesId: number, vehicleNumber: string): string =>
