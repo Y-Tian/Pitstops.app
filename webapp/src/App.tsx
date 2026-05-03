@@ -323,21 +323,19 @@ const PaceGradeRenderer: React.FC<ICellRendererParams<LeaderboardRow>> = ({
   value,
 }) => {
   const grade = typeof value === 'string' && value.trim() ? value.trim() : '—';
-
   const palette: Record<string, { color: string; border: string; bg: string }> = {
-    'S+': { color: '#f8fafc', border: '#f8fafc55', bg: '#1f2937' },
-    S:    { color: '#22c55e', border: '#22c55e55', bg: '#052e16' },
-    A:    { color: '#02bbf9', border: '#02bbf955', bg: '#082f49' },
-    B:    { color: '#fbbf24', border: '#fbbf2455', bg: '#3b2502' },
-    C:    { color: '#fb923c', border: '#fb923c55', bg: '#431407' },
-    D:    { color: '#ef4444', border: '#ef444455', bg: '#450a0a' },
-    F:    { color: '#ef4444', border: '#ef444455', bg: '#450a0a' },
+    'S+': { color: '#e2e8f0', border: 'rgba(226, 232, 240, 0.18)', bg: 'rgba(226, 232, 240, 0.08)' },
+    S:    { color: '#86efac', border: 'rgba(34, 197, 94, 0.22)', bg: 'rgba(34, 197, 94, 0.08)' },
+    A:    { color: '#7dd3fc', border: 'rgba(2, 187, 249, 0.22)', bg: 'rgba(2, 187, 249, 0.08)' },
+    B:    { color: '#fcd34d', border: 'rgba(251, 191, 36, 0.22)', bg: 'rgba(251, 191, 36, 0.08)' },
+    C:    { color: '#fdba74', border: 'rgba(251, 146, 60, 0.22)', bg: 'rgba(251, 146, 60, 0.08)' },
+    D:    { color: '#fca5a5', border: 'rgba(239, 68, 68, 0.22)', bg: 'rgba(239, 68, 68, 0.08)' },
+    F:    { color: '#fca5a5', border: 'rgba(239, 68, 68, 0.22)', bg: 'rgba(239, 68, 68, 0.08)' },
   };
-
   const style = palette[grade] ?? {
-    color: '#dde4ef',
-    border: '#334155',
-    bg: '#111827',
+    color: '#cbd5e1',
+    border: 'rgba(148, 163, 184, 0.18)',
+    bg: 'rgba(148, 163, 184, 0.06)',
   };
 
   return (
@@ -346,16 +344,17 @@ const PaceGradeRenderer: React.FC<ICellRendererParams<LeaderboardRow>> = ({
         display:        'inline-flex',
         alignItems:     'center',
         justifyContent: 'center',
-        minWidth:       34,
-        padding:        '2px 8px',
+        minWidth:       30,
+        padding:        '1px 7px',
         borderRadius:   999,
         border:         `1px solid ${style.border}`,
         background:     style.bg,
         color:          style.color,
         fontFamily:     'JetBrains Mono, monospace',
-        fontSize:       11,
-        fontWeight:     700,
-        letterSpacing:  '0.04em',
+        fontSize:       10,
+        fontWeight:     600,
+        letterSpacing:  '0.05em',
+        lineHeight:     1.2,
       }}
     >
       {grade}
