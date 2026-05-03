@@ -107,7 +107,7 @@ const PositionDeltaRenderer: React.FC<
   );
 };
 
-// ── Driver (badge + manufacturer + name) ──────────────────────────────────────
+// ── Driver (badge + manufacturer + image + name) ──────────────────────────────
 const DriverCellRenderer: React.FC<
   ICellRendererParams<LeaderboardRow>
 > = ({ data, context }) => {
@@ -127,9 +127,11 @@ const DriverCellRenderer: React.FC<
   const badgeFromMap = ctx?.badgeImages?.get(badgeKey);
   const cdnBadgeUrl = ctx?.seriesId ? carBadgeUrl(ctx.seriesId, data.vehicle_number) : undefined;
   const badgeUrl = badgeFromMap ?? cdnBadgeUrl;
+  const driverImageUrl = ctx?.driverImages?.get(data.driver_id);
 
   // Local state to handle image load/error and show fallback when necessary.
   const [imgError, setImgError] = useState(false);
+  const [driverImgError, setDriverImgError] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
@@ -200,6 +202,27 @@ const DriverCellRenderer: React.FC<
           objectFit:  'contain',
         }}
       />
+
+      {/* ── Driver Image ── */}
+      {driverImageUrl && !driverImgError && (
+        <img
+          src={driverImageUrl}
+          alt={clean}
+          title={clean}
+          style={{
+            width:         20,
+            height:        20,
+            flexShrink:    0,
+          }}
+          loading="eager"
+          onError={(e) => {
+            setDriverImgError(true);
+            try {
+              (e.currentTarget as HTMLImageElement).style.display = 'none';
+            } catch {}
+          }}
+        />
+      )}
 
       {/* ── Driver Name ── */}
       <a
@@ -780,6 +803,31 @@ async function prefetchBadges(
   return map;
 }
 
+async function prefetchDriverImages(
+  rows: LeaderboardRow[],
+  imageUrlByNascarDriverId: Map<number, string>
+): Promise<Map<number, string>> {
+  const map = new Map<number, string>();
+  await Promise.allSettled(
+    rows.map(async (row) => {
+      const imageUrl = imageUrlByNascarDriverId.get(row.driver_id);
+      if (!imageUrl) return;
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error(`Failed to preload ${imageUrl}`));
+          img.src = imageUrl;
+        });
+        map.set(row.driver_id, imageUrl);
+      } catch {
+        // silently skip missing driver images
+      }
+    })
+  );
+  return map;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -791,23 +839,25 @@ export default function App() {
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState<string | null>(null);
   const [badgeImages, setBadgeImages] = useState<Map<string, string>>(new Map());
+  const [driverImages, setDriverImages] = useState<Map<number, string>>(new Map());
   const [favoriteDriverIds, setFavoriteDriverIds] = useState<number[]>([]);
 
   // Stable refs — avoid re-creating the interval callback
   const prevPositions  = useRef<Map<number, number>>(new Map());
   const firstLoad      = useRef(true);
   const badgesFetched  = useRef(false);
+  const driverImagesFetched = useRef(false);
   const intervalRef    = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Grid context — memoized to avoid unnecessary re-renders
   const gridContext = useMemo<GridContext>(
-    () => ({ badgeImages, seriesId: metadata?.series_id ?? 1 }),
-    [badgeImages, metadata?.series_id]
+    () => ({ badgeImages, driverImages, seriesId: metadata?.series_id ?? 1 }),
+    [badgeImages, driverImages, metadata?.series_id]
   );
 
   // ── Data loader (stable ref, no deps) ────────────────────────────────────────
   const loadData = useCallback(async () => {
-    if (!R2_URLS.leaderboard || !R2_URLS.metadata || !R2_URLS.analytics) {
+    if (!R2_URLS.leaderboard || !R2_URLS.metadata || !R2_URLS.analytics || !R2_URLS.drivers) {
       setError('R2 URLs not configured — see .env.example');
       return;
     }
@@ -816,10 +866,13 @@ export default function App() {
 
     try {
       // Debuggable fetch: get raw responses so we can log statuses and sizes
-      const [leaderboardResp, metadataResp, analyticsResp] = await Promise.all([
+      const [leaderboardResp, metadataResp, analyticsResp, driversResp] = await Promise.all([
         fetch(R2_URLS.leaderboard, { cache: 'no-store' }),
         fetch(R2_URLS.metadata, { cache: 'no-store' }),
         fetch(R2_URLS.analytics, { cache: 'no-store' }),
+        firstLoad.current && !driverImagesFetched.current
+          ? fetch(R2_URLS.drivers, { cache: 'no-store' })
+          : Promise.resolve(null as Response | null),
       ]);
       console.debug(
         'R2 leaderboard status:',
@@ -832,11 +885,13 @@ export default function App() {
       if (!leaderboardResp.ok) throw new Error(`HTTP ${leaderboardResp.status} — ${R2_URLS.leaderboard}`);
       if (!metadataResp.ok) throw new Error(`HTTP ${metadataResp.status} — ${R2_URLS.metadata}`);
       if (!analyticsResp.ok) throw new Error(`HTTP ${analyticsResp.status} — ${R2_URLS.analytics}`);
+      if (driversResp && !driversResp.ok) throw new Error(`HTTP ${driversResp.status} — ${R2_URLS.drivers}`);
       const [rawRowsText, rawMetaText, rawAnalyticsText] = await Promise.all([
         leaderboardResp.text(),
         metadataResp.text(),
         analyticsResp.text(),
       ]);
+      const rawDriversText = driversResp ? await driversResp.text() : '';
       console.debug(
         'R2 leaderboard bytes:',
         rawRowsText.length,
@@ -848,6 +903,9 @@ export default function App() {
       let parsedA = parseCSV<LeaderboardRow>(rawRowsText);
       let parsedB = parseCSV<RaceMetadata>(rawMetaText);
       const parsedAnalytics = parseCSV<{ driver_id: number; pace_grade: string; pace_rank: number }>(rawAnalyticsText);
+      const parsedDrivers = rawDriversText
+        ? parseCSV<{ nascar_driver_id: number; image_small: string }>(rawDriversText)
+        : [];
 
       // Heuristic detection: CSVs may be swapped. Detect by presence of known keys.
       const aLooksLikeMeta = parsedA[0] && Object.prototype.hasOwnProperty.call(parsedA[0], 'lap_number');
@@ -864,16 +922,23 @@ export default function App() {
       const rawMetaFinal = parsedB as RaceMetadata[];
       const paceGradeByDriverId = new Map<number, string>();
       const paceRankByDriverId = new Map<number, number>();
+      const imageUrlByNascarDriverId = new Map<number, string>();
       parsedAnalytics.forEach((row) => {
         if (row.driver_id != null) {
           paceGradeByDriverId.set(row.driver_id, row.pace_grade ?? '');
           paceRankByDriverId.set(row.driver_id, row.pace_rank ?? Number.POSITIVE_INFINITY);
         }
       });
+      parsedDrivers.forEach((row) => {
+        if (row.nascar_driver_id != null && typeof row.image_small === 'string' && row.image_small.trim()) {
+          imageUrlByNascarDriverId.set(row.nascar_driver_id, row.image_small.trim());
+        }
+      });
 
       console.debug('Parsed leaderboard rows:', rawRowsFinal.length, rawRowsFinal[0]);
       console.debug('Parsed metadata rows:', rawMetaFinal.length, rawMetaFinal[0]);
       console.debug('Parsed analytics rows:', parsedAnalytics.length, parsedAnalytics[0]);
+      console.debug('Parsed drivers rows:', parsedDrivers.length, parsedDrivers[0]);
 
       const prev = prevPositions.current;
 
@@ -902,6 +967,13 @@ export default function App() {
         });
       } else {
         firstLoad.current = false;
+      }
+
+      if (meta && !driverImagesFetched.current && imageUrlByNascarDriverId.size > 0) {
+        driverImagesFetched.current = true;
+        prefetchDriverImages(rows, imageUrlByNascarDriverId).then((images) => {
+          setDriverImages(images);
+        });
       }
 
       setLeaderboard(rows);
@@ -1063,7 +1135,7 @@ export default function App() {
   );
 
   // ── Render ─────────────────────────────────────────────────────────────────────
-  const notConfigured = !R2_URLS.leaderboard || !R2_URLS.metadata || !R2_URLS.analytics;
+  const notConfigured = !R2_URLS.leaderboard || !R2_URLS.metadata || !R2_URLS.analytics || !R2_URLS.drivers;
 
   return (
     <div
@@ -1127,6 +1199,10 @@ export default function App() {
             <br />
             <code style={{ color: '#d97706' }}>
               VITE_ANALYTICS_URL=https://…/analytics.csv
+            </code>
+            <br />
+            <code style={{ color: '#d97706' }}>
+              VITE_DRIVERS_URL=https://…/drivers.csv
             </code>
             <br />
             <code style={{ color: '#d97706' }}>

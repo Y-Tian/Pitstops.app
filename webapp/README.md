@@ -20,6 +20,7 @@ Edit `.env` and fill in your Cloudflare R2 public URLs:
 VITE_LEADERBOARD_URL=https://your-bucket.your-account.r2.cloudflarestorage.com/leaderboard.csv
 VITE_METADATA_URL=https://your-bucket.your-account.r2.cloudflarestorage.com/race_metadata.csv
 VITE_ANALYTICS_URL=https://your-bucket.your-account.r2.cloudflarestorage.com/analytics.csv
+VITE_DRIVERS_URL=https://your-bucket.your-account.r2.cloudflarestorage.com/drivers.csv
 VITE_REFRESH_INTERVAL_MS=5000
 ```
 
@@ -75,13 +76,20 @@ npm run preview
 | `driver_id` | int | Matches `leaderboard.csv` |
 | `pace_grade` | string | Race pace grade shown in the leaderboard |
 
+### `drivers.csv`
+| Column | Type | Notes |
+|---|---|---|
+| `nascar_driver_id` | int | Matches `leaderboard.csv.driver_id` |
+| `image_small` | string | PNG URL used for the driver image |
+
 ---
 
 ## Features
-- **Live polling** — fetches all three CSVs every `VITE_REFRESH_INTERVAL_MS` ms with `cache: no-store`
+- **Live polling** — fetches the leaderboard, metadata, and analytics CSVs every `VITE_REFRESH_INTERVAL_MS` ms with `cache: no-store`
 - **Position delta** — tracks each driver's position change between refreshes (▲ green / ▼ red)
 - **Animated row reordering** — AG Grid's `animateRows` smoothly moves rows as positions change
 - **Car badge images** — prefetched once on load from `cf.nascar.com/data/images/carbadges/`
+- **Driver images** — loaded once on app start from `drivers.csv` and cached by `nascar_driver_id`
 - **Manufacturer pills** — color-coded CHV (gold) / FRD (blue) / TYT (red)
 - **Driver decorators** — `i` badge for ineligible drivers, `R` for rookies
 - **Gap formatting** — seconds for on-lead-lap cars, `–N Laps` for lapped cars

@@ -33,5 +33,6 @@ export interface RaceMetadata extends Record<string, unknown> {
 // Passed to every AG Grid cell renderer via the `context` prop
 export interface GridContext {
   badgeImages: Map<string, string>; // vehicleNumber → object URL
+  driverImages: Map<number, string>; // driverId → object URL
   seriesId: number;
 }

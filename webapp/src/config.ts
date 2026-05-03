@@ -3,6 +3,7 @@ export const R2_URLS = {
   leaderboard: (import.meta.env.VITE_LEADERBOARD_URL as string) || '',
   metadata: (import.meta.env.VITE_METADATA_URL as string) || '',
   analytics: (import.meta.env.VITE_ANALYTICS_URL as string) || '',
+  drivers: (import.meta.env.VITE_DRIVERS_URL as string) || '',
 };
 
 export const REFRESH_INTERVAL_MS =
