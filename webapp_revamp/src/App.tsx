@@ -200,7 +200,10 @@ const DriverCellRenderer: React.FC<
       />
 
       {/* ── Driver Name ── */}
-      <span
+      <a
+        href={`https://en.wikipedia.org/wiki/${clean.replace(/\s+/g, '_')}`}
+        target="_blank"
+        rel="noopener noreferrer"
         style={{
           fontFamily:   'Barlow Condensed, sans-serif',
           fontWeight:   500,
@@ -210,10 +213,19 @@ const DriverCellRenderer: React.FC<
           textOverflow: 'ellipsis',
           whiteSpace:   'nowrap',
           flex:         1,
+          textDecoration: 'none',
+          cursor:       'pointer',
+          transition:   'color 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLAnchorElement).style.color = '#02bbf9';
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLAnchorElement).style.color = '#dde4ef';
         }}
       >
         {clean}
-      </span>
+      </a>
 
       {/* ── Ineligible indicator ── */}
       {ineligible && (
