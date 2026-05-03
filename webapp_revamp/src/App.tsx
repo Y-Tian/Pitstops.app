@@ -24,6 +24,7 @@ import {
   REFRESH_INTERVAL_MS,
   SERIES_NAMES,
 } from './config';
+import { FavoriteDriversSelect } from './FavoriteDriversSelect';
 import './index.css';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -622,7 +623,7 @@ const RaceHeader: React.FC<HeaderProps> = ({
             marginTop:     2,
           }}
         >
-          AUTO·REFRESH {REFRESH_INTERVAL_MS / 1000}s
+          Automatically refreshes every {REFRESH_INTERVAL_MS / 1000}s
         </div>
       </div>
     </header>
@@ -700,6 +701,7 @@ export default function App() {
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState<string | null>(null);
   const [badgeImages, setBadgeImages] = useState<Map<string, string>>(new Map());
+  const [favoriteDriverIds, setFavoriteDriverIds] = useState<number[]>([]);
 
   // Stable refs — avoid re-creating the interval callback
   const prevPositions  = useRef<Map<number, number>>(new Map());
@@ -891,13 +893,14 @@ export default function App() {
 
   const rowClassRules = useMemo(
     () => ({
-      'driver-pos-1':       (params) => params.data?.running_position === 1,
-      'driver-pos-2-5':     (params) => params.data?.running_position >= 2 && params.data?.running_position <= 5,
-      'driver-pos-6-10':    (params) => params.data?.running_position >= 6 && params.data?.running_position <= 10,
-      'driver-pos-11-20':   (params) => params.data?.running_position >= 11 && params.data?.running_position <= 20,
-      'driver-pos-21-plus': (params) => params.data?.running_position > 20,
+      'driver-pos-1':       (params: any) => params.data?.running_position === 1,
+      'driver-pos-2-5':     (params: any) => params.data?.running_position >= 2 && params.data?.running_position <= 5,
+      'driver-pos-6-10':    (params: any) => params.data?.running_position >= 6 && params.data?.running_position <= 10,
+      'driver-pos-11-20':   (params: any) => params.data?.running_position >= 11 && params.data?.running_position <= 20,
+      'driver-pos-21-plus': (params: any) => params.data?.running_position > 20,
+      'driver-favorite':    (params: any) => favoriteDriverIds.includes(params.data?.driver_id ?? -1),
     }),
-    []
+    [favoriteDriverIds]
   );
 
   const defaultColDef = useMemo<ColDef>(
@@ -972,6 +975,23 @@ export default function App() {
               VITE_METADATA_URL=https://…/race_metadata.csv
             </code>
           </p>
+        </div>
+      )}
+
+      {/* ── Favorite Drivers Select ── */}
+      {leaderboard.length > 0 && (
+        <div
+          style={{
+            padding: '12px 16px',
+            borderBottom: '1px solid #1a1a2e',
+            background: '#0a0a14',
+          }}
+        >
+          <FavoriteDriversSelect
+            drivers={leaderboard}
+            selectedDriverIds={favoriteDriverIds}
+            onSelectionChange={setFavoriteDriverIds}
+          />
         </div>
       )}
 
