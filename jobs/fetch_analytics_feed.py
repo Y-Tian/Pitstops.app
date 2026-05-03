@@ -35,6 +35,10 @@ class AnalyticsFeedToR2:
         self.timeseries_key = r2_config.get("timeseries_key", "timeseries.csv")
         self.analytics_key = r2_config.get("analytics_key", "analytics.csv")
         self.max_laps_per_driver = int(r2_config.get("max_laps_per_driver", 3))
+        self.timeseries_public_url = r2_config.get(
+            "timeseries_public_url",
+            "https://pub-c40331d1ffaa483a8c55e70a0acd246f.r2.dev/timeseries.csv",
+        )
         self.verify_connection()
 
     def verify_connection(self):
@@ -66,13 +70,18 @@ class AnalyticsFeedToR2:
     def fetch_r2_object(self, filename):
         """Fetch an existing R2 object if it exists."""
         try:
-            url = f"{self.base_url}/{filename}"
-            headers = self.headers.copy()
-            headers["Cache-Control"] = "no-cache"
-            response = self.http.request("GET", url, headers=headers, timeout=30)
+            if filename != self.timeseries_key:
+                raise ValueError(f"Unsupported object key for public fetch: {filename}")
+
+            response = self.http.request("GET", self.timeseries_public_url, timeout=30)
 
             if response.status == 200:
-                return response.data.decode("utf-8")
+                content = response.data.decode("utf-8")
+                print(
+                    f"Fetched {filename} from public URL: "
+                    f"bytes={len(content.encode('utf-8'))}"
+                )
+                return content
 
             if response.status == 404:
                 return None
@@ -475,6 +484,10 @@ def lambda_handler(event, context):
         "timeseries_key": os.getenv("R2_TIMESERIES_KEY", "timeseries.csv"),
         "analytics_key": os.getenv("R2_ANALYTICS_KEY", "analytics.csv"),
         "max_laps_per_driver": os.getenv("MAX_LAPS_PER_DRIVER", "3"),
+        "timeseries_public_url": os.getenv(
+            "R2_TIMESERIES_PUBLIC_URL",
+            "https://pub-c40331d1ffaa483a8c55e70a0acd246f.r2.dev/timeseries.csv",
+        ),
     }
 
     updater = AnalyticsFeedToR2(r2_config)

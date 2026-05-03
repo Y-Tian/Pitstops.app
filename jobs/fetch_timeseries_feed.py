@@ -34,6 +34,10 @@ class TimeseriesFeedToR2:
         self.http = urllib3.PoolManager()
         self.timeseries_key = r2_config.get("timeseries_key", "timeseries.csv")
         self.max_laps_per_driver = int(r2_config.get("max_laps_per_driver", 3))
+        self.timeseries_public_url = r2_config.get(
+            "timeseries_public_url",
+            "https://pub-c40331d1ffaa483a8c55e70a0acd246f.r2.dev/timeseries.csv",
+        )
         self.verify_connection()
 
     def verify_connection(self):
@@ -78,15 +82,21 @@ class TimeseriesFeedToR2:
     def fetch_r2_object(self, filename):
         """Fetch an existing R2 object if it exists."""
         try:
-            url = f"{self.base_url}/{filename}"
-            headers = self.headers.copy()
-            headers["Cache-Control"] = "no-cache"
-            response = self.http.request("GET", url, headers=headers, timeout=30)
+            if filename != self.timeseries_key:
+                raise ValueError(f"Unsupported object key for public fetch: {filename}")
+
+            response = self.http.request("GET", self.timeseries_public_url, timeout=30)
 
             if response.status == 200:
-                return response.data.decode("utf-8")
+                content = response.data.decode("utf-8")
+                print(
+                    f"Fetched {filename} from R2: "
+                    f"status=200, bytes={len(content.encode('utf-8'))}"
+                )
+                return content
 
             if response.status == 404:
+                print(f"R2 object not found: {filename} (status=404)")
                 return None
 
             print(
@@ -114,6 +124,8 @@ class TimeseriesFeedToR2:
                 content_bytes = content.encode("utf-8")
             else:
                 content_bytes = content
+
+            print(f"Uploading {filename} to R2: bytes={len(content_bytes)}")
 
             response = self.http.request(
                 "PUT",
@@ -143,7 +155,12 @@ class TimeseriesFeedToR2:
             writer = csv.writer(output)
             writer.writerow(headers)
             writer.writerows(rows)
-            return output.getvalue()
+            csv_text = output.getvalue()
+            print(
+                "Created CSV string: "
+                f"rows={len(rows)}, bytes={len(csv_text.encode('utf-8'))}"
+            )
+            return csv_text
         except Exception as exc:
             print(f"Error creating CSV string: {exc}")
             return None
@@ -316,6 +333,13 @@ class TimeseriesFeedToR2:
             snapshot_rows = self.extract_snapshot_rows(data, timestamp)
             merged_rows = self.merge_timeseries(existing_rows, snapshot_rows)
 
+            print(
+                "Timeseries merge counts: "
+                f"existing_rows={len(existing_rows)}, "
+                f"snapshot_rows={len(snapshot_rows)}, "
+                f"merged_rows={len(merged_rows)}"
+            )
+
             ordered_rows = []
             for row in merged_rows:
                 ordered_rows.append(
@@ -390,8 +414,16 @@ class TimeseriesFeedToR2:
                 print("Failed to create timeseries CSV")
                 return False
 
+            print(f"Uploading rebuilt timeseries CSV to R2 key: {self.timeseries_key}")
             success = self.upload_to_r2(self.timeseries_key, timeseries_csv)
             if success:
+                verify_csv = self.fetch_r2_object(self.timeseries_key)
+                verify_rows = self.parse_csv(verify_csv)
+                print(
+                    "Post-upload verification: "
+                    f"bytes={len((verify_csv or '').encode('utf-8'))}, "
+                    f"rows={len(verify_rows)}"
+                )
                 self.print_public_urls()
                 print(f"Successfully updated timeseries CSV at {timestamp}")
 
@@ -438,6 +470,10 @@ def lambda_handler(event, context):
         "custom_domain": os.getenv("R2_CUSTOM_DOMAIN"),
         "timeseries_key": os.getenv("R2_TIMESERIES_KEY", "timeseries.csv"),
         "max_laps_per_driver": os.getenv("MAX_LAPS_PER_DRIVER", "3"),
+        "timeseries_public_url": os.getenv(
+            "R2_TIMESERIES_PUBLIC_URL",
+            "https://pub-c40331d1ffaa483a8c55e70a0acd246f.r2.dev/timeseries.csv",
+        ),
     }
 
     updater = TimeseriesFeedToR2(live_feed_url, r2_config)
