@@ -814,13 +814,11 @@ async function prefetchDriverImages(
       const imageUrl = imageUrlByNascarDriverId.get(row.driver_id);
       if (!imageUrl) return;
       try {
-        await new Promise<void>((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => resolve();
-          img.onerror = () => reject(new Error(`Failed to preload ${imageUrl}`));
-          img.src = imageUrl;
-        });
-        map.set(row.driver_id, imageUrl);
+        const resp = await fetch(imageUrl);
+        if (resp.ok) {
+          const blob = await resp.blob();
+          map.set(row.driver_id, URL.createObjectURL(blob));
+        }
       } catch {
         // silently skip missing driver images
       }
