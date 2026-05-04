@@ -1044,6 +1044,7 @@ export default function App() {
         field:       'running_position',
         width:       70,
         pinned:      'left',
+        suppressMovable: true,
         sort:        'asc',
         headerClass: 'ag-col-center',
         cellStyle: {
@@ -1061,6 +1062,7 @@ export default function App() {
         field:       'starting_position',
         width:       78,
         pinned:      'left',
+        suppressMovable: true,
         headerClass: 'ag-col-center',
         cellStyle: {
           display:        'flex',
@@ -1082,6 +1084,15 @@ export default function App() {
         cellStyle:    centeredCellStyle,
       },
       {
+        headerName:   'DRIVER',
+        field:        'full_name',
+        flex:         1,
+        minWidth:     215,
+        sortable:     false,
+        cellRenderer: DriverCellRenderer,
+        cellStyle:    driverCellStyle,
+      },
+      {
         headerName:  'TEAM',
         field:       'team',
         width:       120,
@@ -1090,15 +1101,6 @@ export default function App() {
           'team-favorite': (params: any) =>
             favoriteTeamNames.includes(String(params.value ?? '').trim()),
         },
-      },
-      {
-        headerName:   'DRIVER',
-        field:        'full_name',
-        flex:         1,
-        minWidth:     215,
-        sortable:     false,
-        cellRenderer: DriverCellRenderer,
-        cellStyle:    driverCellStyle,
       },
       {
         headerName:   'RACE PACE',
@@ -1156,7 +1158,7 @@ export default function App() {
     () => ({
       sortable:        true,
       resizable:       false,
-      suppressMovable: true,
+      suppressMovable: false,
     }),
     []
   );
