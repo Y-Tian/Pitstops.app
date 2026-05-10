@@ -38,6 +38,7 @@ export const FLAG_CONFIG: Record<
 import chevroletLogo from './resources/chevrolet.png';
 import fordLogo from './resources/ford.png';
 import toyotaLogo from './resources/toyota.png';
+import ramLogo from './resources/ram.png';
 
 // ─── Manufacturer Config ───────────────────────────────────────────────────────
 export const MFR_CONFIG: Record<
@@ -68,4 +69,12 @@ export const MFR_CONFIG: Record<
     bg: '#210808',
     border: '#f8717140',
   },
+  Ram: {
+    full: 'RAM',
+    abbr: 'RAM',
+    logo: ramLogo,
+    color: '#f87171',
+    bg: '#210808',
+    border: '#f8717140',
+  }
 };
