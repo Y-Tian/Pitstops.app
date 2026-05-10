@@ -219,15 +219,15 @@ class AnalyticsFeedToR2:
 
     def grade_for_score(self, score_percent):
         """Map a percentile-style score to the requested pace grades."""
-        if score_percent >= 99.0:
-            return "S+"
         if score_percent >= 95.0:
-            return "S"
+            return "S+"
         if score_percent >= 90.0:
+            return "S"
+        if score_percent >= 80.0:
             return "A"
-        if score_percent >= 75.0:
+        if score_percent >= 60.0:
             return "B"
-        if score_percent >= 50.0:
+        if score_percent >= 30.0:
             return "C"
         return "D"
 
